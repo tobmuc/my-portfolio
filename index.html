@@ -1,0 +1,760 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tobias Burkard · Data Analytics & KI</title>
+<meta name="description" content="Tobias Burkard, München: Data Analytics, Data Engineering und KI-Anwendungen. Agile Projektarbeit mit Kanban und Scrum, transparent und in kurzen Zyklen.">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="logo.svg" type="image/svg+xml">
+<script>
+/* Theme und Sprache vor dem ersten Rendern setzen, damit nichts flackert */
+(function () {
+  var d = document.documentElement;
+  try {
+    var t = localStorage.getItem("theme");
+    if (t === "light" || t === "dark") d.setAttribute("data-theme", t);
+    var l = localStorage.getItem("lang");
+    if (l !== "de" && l !== "en") l = (navigator.languages && navigator.languages[0] || navigator.language || "de").toLowerCase().indexOf("de") === 0 ? "de" : "en";
+    d.setAttribute("lang", l);
+  } catch (e) {
+    var n = (navigator.language || "de").toLowerCase();
+    d.setAttribute("lang", n.indexOf("de") === 0 ? "de" : "en");
+  }
+})();
+</script>
+<style>
+:root {
+  --bg: #fffbf0;
+  --bg-alt: #fff3d9;
+  --ink: #1a1a1e;
+  --muted: #55524a;
+  --line: #e2d9c2;
+  --accent: #fa520f;
+  --accent-text: #b83800;
+  --accent-ink: #1a1a1e;
+  --accent-soft: #ffe8c4;
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --radius: 0px;
+  --font: Inter, "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, "Cascadia Code", "SF Mono", Consolas, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #101013;
+    --bg-alt: #17171b;
+    --ink: #fafaf4;
+    --muted: #a9a9a2;
+    --line: #2b2b31;
+    --accent: #fa520f;
+    --accent-text: #ff7d45;
+    --accent-ink: #101013;
+    --accent-soft: #261810;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #101013;
+  --bg-alt: #17171b;
+  --ink: #fafaf4;
+  --muted: #a9a9a2;
+  --line: #2b2b31;
+  --accent: #fa520f;
+  --accent-text: #ff7d45;
+  --accent-ink: #101013;
+  --accent-soft: #261810;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 72px; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font: 400 1.0625rem/1.6 var(--font); -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+.wrap { width: min(1120px, 100% - 32px); margin-inline: auto; }
+h1, h2, h3 { line-height: 1.15; margin: 0; text-wrap: balance; letter-spacing: -0.02em; }
+p { margin: 0; text-wrap: pretty; }
+.lead { font-size: 1.25rem; color: var(--muted); max-width: 60ch; }
+.label { font: 600 0.8125rem/1 var(--mono); color: var(--accent-text); letter-spacing: 0.04em; display: inline-flex; align-items: center; gap: 10px; }
+.label::before { content: ""; width: 8px; height: 8px; background: var(--accent); flex: none; }
+
+/* header */
+header {
+  position: sticky; top: 0; z-index: 10;
+  background: color-mix(in oklab, var(--bg) 92%, transparent);
+  backdrop-filter: blur(8px); border-bottom: 1px solid var(--line);
+}
+header .wrap { display: flex; align-items: center; justify-content: space-between; height: 60px; gap: 12px; }
+.brand { display: inline-flex; align-items: center; gap: 10px; font-weight: 650; text-decoration: none; letter-spacing: -0.01em; white-space: nowrap; }
+.logo { width: 40px; height: 25px; overflow: visible; flex: none; }
+.hright { display: flex; align-items: center; gap: 8px; }
+nav { display: flex; gap: 2px; }
+nav a {
+  text-decoration: none; color: var(--muted); font-size: 0.9375rem;
+  padding: 10px 12px; border-radius: 6px; transition: color .15s, background-color .15s; white-space: nowrap;
+}
+nav a:hover { color: var(--ink); background: var(--bg-alt); }
+@media (max-width: 760px) { nav a:not(.cta-nav) { display: none; } }
+.cta-nav { color: var(--accent-ink); background: var(--accent); font-weight: 600; }
+.cta-nav:hover { color: var(--accent-ink); background: var(--accent); filter: brightness(1.08); }
+
+.tools { display: flex; align-items: center; gap: 6px; margin-left: 6px; padding-left: 10px; border-left: 1px solid var(--line); }
+.lang { display: flex; align-items: center; font: 600 0.8125rem/1 var(--mono); }
+.lang button {
+  all: unset; box-sizing: border-box; cursor: pointer; min-width: 36px; min-height: 40px;
+  display: grid; place-items: center; color: var(--muted); border-radius: 6px; transition: color .15s, background-color .15s;
+}
+.lang button:hover { color: var(--ink); background: var(--bg-alt); }
+.lang button[aria-pressed="true"] { color: var(--accent-text); }
+.lang button:focus-visible, .theme:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.lang i { font-style: normal; color: var(--line); }
+.theme {
+  all: unset; box-sizing: border-box; cursor: pointer; width: 40px; height: 40px;
+  display: grid; place-items: center; border-radius: 6px; color: var(--muted);
+  transition: color .15s, background-color .15s, transform .15s var(--ease-out);
+}
+.theme:hover { color: var(--ink); background: var(--bg-alt); }
+.theme:active { transform: scale(0.94); }
+.theme svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.theme .sun { display: none; }
+:root[data-theme="dark"] .theme .sun { display: block; }
+:root[data-theme="dark"] .theme .moon { display: none; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .theme .sun { display: block; }
+  :root:not([data-theme="light"]) .theme .moon { display: none; }
+}
+@media (max-width: 420px) { .brand span { display: none; } .tools { border-left: 0; padding-left: 0; margin-left: 0; } }
+
+/* pixel stripe */
+.stripe { height: 10px; background: linear-gradient(90deg, #ffaf00 0 20%, #ff8205 20% 40%, #fa500f 40% 60%, #e10500 60% 80%, #ffaf00 80% 100%); }
+
+/* buttons */
+.btn {
+  display: inline-flex; align-items: center; min-height: 48px; padding: 0 22px;
+  border-radius: var(--radius); font-weight: 600; text-decoration: none;
+  border: 1px solid var(--line); transition: transform .15s var(--ease-out), background-color .15s, border-color .15s;
+}
+.btn:active { transform: scale(0.97); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.btn.primary:hover { filter: brightness(1.08); }
+.btn.ghost:hover { border-color: var(--accent); }
+
+/* hero */
+.hero { padding: clamp(56px, 9vw, 112px) 0 clamp(48px, 7vw, 88px); }
+.hero .grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: clamp(32px, 6vw, 88px); align-items: end; }
+.hero h1 { font-size: clamp(2.4rem, 5.6vw, 4.5rem); font-weight: 600; letter-spacing: -0.035em; margin: 20px 0 24px; }
+.hero .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 36px; }
+.pframe {
+  width: min(232px, 62%); aspect-ratio: 1; margin-bottom: 32px; padding: 5px; border-radius: 50%;
+  background: conic-gradient(from 200deg, #ffaf00, #ff8205, #fa500f, #e10500, #fa500f, #ff8205, #ffaf00);
+}
+.portrait {
+  display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 30%;
+  border-radius: 50%; border: 5px solid var(--bg); background: var(--bg-alt);
+}
+.facts { margin: 0; border-top: 1px solid var(--line); }
+.facts div { display: flex; justify-content: space-between; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+.facts dt { color: var(--muted); font-size: 0.9375rem; }
+.facts dd { margin: 0; font-weight: 600; text-align: right; }
+@media (max-width: 860px) { .hero .grid { grid-template-columns: 1fr; } }
+
+/* sections */
+section { padding: clamp(56px, 8vw, 104px) 0; }
+section.alt { background: var(--bg-alt); }
+.head { max-width: 62ch; margin-bottom: clamp(32px, 5vw, 56px); }
+.head h2 { font-size: clamp(1.75rem, 3.4vw, 2.5rem); margin: 14px 0 16px; font-weight: 600; }
+.head p { color: var(--muted); }
+
+/* cycle */
+.cycle { display: grid; grid-template-columns: minmax(300px, 460px) 1fr; gap: clamp(32px, 6vw, 80px); align-items: center; }
+@media (max-width: 860px) { .cycle { grid-template-columns: 1fr; } }
+.ring-wrap { position: relative; width: 100%; max-width: 460px; margin-inline: auto; aspect-ratio: 1; }
+.ring-wrap svg { width: 100%; height: 100%; overflow: visible; }
+.track { fill: none; stroke: var(--line); stroke-width: 2; }
+.flow { fill: none; stroke: var(--accent-text); stroke-width: 2; stroke-dasharray: 2 14; stroke-linecap: round; opacity: .55; animation: flow 3s linear infinite; }
+@keyframes flow { to { stroke-dashoffset: -64; } }
+.pointer { transform-origin: 200px 200px; transition: transform .9s var(--ease-out); }
+.pointer rect { fill: var(--accent); }
+.pointer .halo { fill: var(--accent); opacity: .22; animation: pulse 2.4s ease-out infinite; transform-box: fill-box; transform-origin: center; }
+@keyframes pulse { 0% { transform: scale(.7); opacity: .35; } 100% { transform: scale(1.7); opacity: 0; } }
+.node rect { fill: var(--bg-alt); stroke: var(--line); stroke-width: 2; transition: fill .3s, stroke .3s; }
+.node text { font: 600 15px var(--mono); fill: var(--muted); text-anchor: middle; dominant-baseline: central; transition: fill .3s; }
+.node.on rect { fill: var(--accent); stroke: var(--accent); }
+.node.on text { fill: var(--accent-ink); }
+.node { cursor: pointer; }
+.center {
+  position: absolute; inset: 22%; display: flex; flex-direction: column; align-items: center;
+  justify-content: center; text-align: center; gap: 8px; pointer-events: none;
+}
+.center .k { font: 600 0.75rem/1 var(--mono); color: var(--accent-text); letter-spacing: .06em; }
+.center .t { font-size: clamp(1.1rem, 2.6vw, 1.5rem); font-weight: 600; line-height: 1.2; letter-spacing: -0.01em; }
+.center .s { font-size: 0.875rem; color: var(--muted); line-height: 1.4; }
+.center > * { transition: opacity .25s var(--ease-out), transform .25s var(--ease-out); }
+.center.swap > * { opacity: 0; transform: translateY(4px); }
+
+.steps { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+.steps li { border-bottom: 1px solid var(--line); }
+.steps button {
+  all: unset; box-sizing: border-box; cursor: pointer; width: 100%;
+  display: grid; grid-template-columns: 40px 1fr; gap: 6px 12px; padding: 18px 8px;
+  transition: background-color .2s;
+}
+.steps button:hover { background: var(--bg); }
+.steps button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.steps .n { font: 600 0.9rem/1.5 var(--mono); color: var(--muted); }
+.steps .h { font-weight: 650; }
+.steps .d { grid-column: 2; color: var(--muted); font-size: 0.9375rem; max-height: 0; overflow: hidden; opacity: 0; transition: max-height .4s var(--ease-out), opacity .3s; }
+.steps li.on .n { color: var(--accent-text); }
+.steps li.on .d { max-height: 120px; opacity: 1; }
+.ctrl { margin-top: 20px; display: flex; align-items: center; gap: 12px; color: var(--muted); font-size: .875rem; }
+.ctrl button {
+  min-height: 40px; padding: 0 14px; border-radius: 6px; border: 1px solid var(--line);
+  background: transparent; color: var(--ink); font: inherit; cursor: pointer;
+}
+.ctrl button:hover { border-color: var(--accent); }
+
+/* method compare */
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--line); border: 1px solid var(--line); }
+.two > div { padding: 32px; background: var(--bg); }
+.two h3 { font-size: 1.375rem; margin-bottom: 8px; }
+.two .sub { color: var(--accent-text); font: 600 .8125rem/1 var(--mono); letter-spacing: .04em; margin-bottom: 16px; display: block; }
+.two ul { margin: 16px 0 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+.two li { padding-left: 20px; position: relative; color: var(--muted); }
+.two li::before { content: ""; position: absolute; left: 0; top: .7em; width: 8px; height: 2px; background: var(--accent); }
+@media (max-width: 760px) {
+  .two { grid-template-columns: 1fr; }
+  .two > div { padding: 24px; }
+}
+.note { margin-top: 28px; padding: 18px 20px; background: var(--accent-soft); color: var(--ink); max-width: 72ch; }
+
+/* services */
+.services { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); }
+.services > div { padding: 32px; background: var(--bg-alt); }
+.services h3 { font-size: 1.25rem; margin: 10px 0 10px; }
+.services p { color: var(--muted); }
+.tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 36px; }
+.tags span { font: 500 .8125rem/1 var(--mono); padding: 8px 12px; border: 1px solid var(--line); color: var(--muted); }
+
+/* experience */
+.xp { border: 1px solid var(--line); }
+.xp > div { display: grid; grid-template-columns: 220px 1fr; gap: 12px 40px; padding: 28px 32px; background: var(--bg); }
+.xp > div + div { border-top: 1px solid var(--line); }
+.xp h3 { font-size: 1.125rem; }
+.xp p { color: var(--muted); max-width: 64ch; }
+@media (max-width: 700px) { .xp > div { grid-template-columns: 1fr; } }
+
+/* contact */
+.contact { text-align: left; }
+.cgrid { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(32px, 6vw, 80px); align-items: start; }
+@media (max-width: 860px) { .cgrid { grid-template-columns: 1fr; } }
+.cform { display: grid; gap: 20px; padding: 32px; background: var(--bg); border: 1px solid var(--line); }
+@media (max-width: 480px) { .cform { padding: 20px; } }
+.field { display: grid; gap: 8px; }
+.field label { font-weight: 600; font-size: .9375rem; }
+.field input[type="text"], .field input[type="email"], .field textarea {
+  width: 100%; font: inherit; color: var(--ink); background: var(--bg-alt);
+  border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 14px; min-height: 48px;
+  transition: border-color .15s, background-color .15s;
+}
+.field textarea { resize: vertical; min-height: 140px; }
+.field input:hover, .field textarea:hover { border-color: var(--muted); }
+.field input:focus-visible, .field textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
+.field [aria-invalid="true"] { border-color: #e5484d; }
+.err { color: #e5484d; font-size: .875rem; min-height: 0; }
+.err:empty { display: none; }
+:root:not([data-theme="dark"]) .err { color: #b4232a; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .err { color: #ff8a8e; } }
+:root[data-theme="dark"] .err { color: #ff8a8e; }
+.field.check { grid-template-columns: 24px 1fr; align-items: start; gap: 4px 12px; }
+.field.check input { width: 20px; height: 20px; margin: 3px 0 0; accent-color: var(--accent); }
+.field.check label { font-weight: 400; font-size: .875rem; color: var(--muted); }
+.field.check .err { grid-column: 2; }
+.hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+.cform .btn { justify-content: center; cursor: pointer; font: inherit; font-weight: 600; }
+.cform .btn[disabled] { opacity: .6; cursor: progress; }
+.status { font-size: .9375rem; color: var(--muted); }
+.status:empty { display: none; }
+.status.ok { color: var(--ink); border-left: 0; padding: 12px 14px; background: var(--accent-soft); }
+.contact h2 { font-size: clamp(2rem, 4.4vw, 3.25rem); font-weight: 600; margin: 14px 0 20px; max-width: 18ch; }
+.contact .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 32px; }
+footer { border-top: 1px solid var(--line); padding: 28px 0 40px; color: var(--muted); font-size: .9375rem; }
+footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; }
+footer a { text-underline-offset: 3px; }
+
+/* scroll reveal */
+.rv { opacity: 0; transform: translateY(12px); transition: opacity .6s var(--ease-out), transform .6s var(--ease-out); }
+.rv.in { opacity: 1; transform: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .flow, .pointer .halo { animation: none; }
+  .pointer { transition: none; }
+  .rv { opacity: 1; transform: none; transition: none; }
+  .center > *, .steps .d { transition: none; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <a class="brand" href="#top" data-i-aria="brand_aria" aria-label="Tobias Burkard, zur Startseite">
+      <svg class="logo" viewBox="0 0 66 42" aria-hidden="true"><g shape-rendering="crispEdges"><rect x="0" y="0" width="6" height="6" fill="#FFAF00"/><rect x="6" y="0" width="6" height="6" fill="#FFAF00"/><rect x="12" y="0" width="6" height="6" fill="#FF8205"/><rect x="18" y="0" width="6" height="6" fill="#FF8205"/><rect x="24" y="0" width="6" height="6" fill="#FF8205"/><rect x="36" y="0" width="6" height="6" fill="#FA500F"/><rect x="42" y="0" width="6" height="6" fill="#FA500F"/><rect x="48" y="0" width="6" height="6" fill="#E10500"/><rect x="54" y="0" width="6" height="6" fill="#E10500"/><rect x="12" y="6" width="6" height="6" fill="#FF8205"/><rect x="36" y="6" width="6" height="6" fill="#FA500F"/><rect x="60" y="6" width="6" height="6" fill="#E10500"/><rect x="12" y="12" width="6" height="6" fill="#FF8205"/><rect x="36" y="12" width="6" height="6" fill="#FA500F"/><rect x="60" y="12" width="6" height="6" fill="#E10500"/><rect x="12" y="18" width="6" height="6" fill="#FF8205"/><rect x="36" y="18" width="6" height="6" fill="#FA500F"/><rect x="42" y="18" width="6" height="6" fill="#FA500F"/><rect x="48" y="18" width="6" height="6" fill="#E10500"/><rect x="54" y="18" width="6" height="6" fill="#E10500"/><rect x="12" y="24" width="6" height="6" fill="#FF8205"/><rect x="36" y="24" width="6" height="6" fill="#FA500F"/><rect x="60" y="24" width="6" height="6" fill="#E10500"/><rect x="12" y="30" width="6" height="6" fill="#FF8205"/><rect x="36" y="30" width="6" height="6" fill="#FA500F"/><rect x="60" y="30" width="6" height="6" fill="#E10500"/><rect x="12" y="36" width="6" height="6" fill="#FF8205"/><rect x="36" y="36" width="6" height="6" fill="#FA500F"/><rect x="42" y="36" width="6" height="6" fill="#FA500F"/><rect x="48" y="36" width="6" height="6" fill="#E10500"/><rect x="54" y="36" width="6" height="6" fill="#E10500"/></g></svg>
+      <span>Tobias Burkard</span>
+    </a>
+    <div class="hright">
+      <nav aria-label="Hauptnavigation" data-i-aria="nav_aria">
+        <a href="#vorgehen" data-i="n_proc">Vorgehen</a>
+        <a href="#methoden" data-i="n_meth">Kanban &amp; Scrum</a>
+        <a href="#leistungen" data-i="n_serv">Leistungen</a>
+        <a href="#erfahrung" data-i="n_exp">Erfahrung</a>
+        <a class="cta-nav" href="#kontakt" data-i="n_contact">Kontakt</a>
+      </nav>
+      <div class="tools">
+        <div class="lang" role="group" aria-label="Sprache" data-i-aria="lang_aria">
+          <button type="button" data-lang="de" aria-pressed="true" lang="de">DE</button>
+          <i aria-hidden="true">|</i>
+          <button type="button" data-lang="en" aria-pressed="false" lang="en">EN</button>
+        </div>
+        <button type="button" class="theme" id="theme" aria-label="Dunkelmodus umschalten" data-i-aria="theme_aria">
+          <svg class="moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4 8.5 8.5 0 1 0 20 14.5z"/></svg>
+          <svg class="sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M18.7 5.3l-1.6 1.6M6.9 17.1l-1.6 1.6"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</header>
+<div class="stripe" aria-hidden="true"></div>
+
+<main id="top">
+  <div class="hero">
+    <div class="wrap grid">
+      <div>
+        <span class="label" data-i="hero_label">DATA ANALYTICS · DATA ENGINEERING · KI</span>
+        <h1 data-i="hero_h1">Daten und KI, die im Alltag der Fachbereiche ankommen.</h1>
+        <p class="lead" data-i="hero_lead">Ich baue Analysen, Datenpipelines und KI-Anwendungen und führe sie in kurzen, transparenten Zyklen in den Betrieb. Agil, mit klaren Zuständigkeiten und regelmäßigem Feedback.</p>
+        <div class="actions">
+          <a class="btn primary" href="#kontakt" data-i="hero_cta1">Projekt besprechen</a>
+          <a class="btn ghost" href="#vorgehen" data-i="hero_cta2">Mein Vorgehen</a>
+        </div>
+      </div>
+      <div class="side">
+        <div class="pframe"><img class="portrait" src="profil.jpg" width="387" height="387" alt="Porträt von Tobias Burkard" data-i-alt="portrait_alt" fetchpriority="high"></div>
+        <dl class="facts">
+          <div><dt data-i="f1">Standort</dt><dd data-i="f1v">München</dd></div>
+          <div><dt data-i="f2">Erfahrung</dt><dd data-i="f2v">10+ Jahre Konzernumfeld</dd></div>
+          <div><dt data-i="f3">Schwerpunkt</dt><dd data-i="f3v">Analytics &amp; KI</dd></div>
+          <div><dt data-i="f4">Arbeitsweise</dt><dd>Kanban &amp; Scrum</dd></div>
+        </dl>
+      </div>
+    </div>
+  </div>
+
+  <section id="vorgehen" class="alt">
+    <div class="wrap">
+      <div class="head rv">
+        <span class="label" data-i="p_label">VORGEHEN</span>
+        <h2 data-i="p_h2">Ein Kreislauf statt eines großen Wurfs.</h2>
+        <p data-i="p_p">Jedes Projekt läuft in kurzen Zyklen: planen, umsetzen, zeigen, lernen. So bleibt der Stand sichtbar, Risiken fallen früh auf und der Nutzen kommt Schritt für Schritt an.</p>
+      </div>
+
+      <div class="cycle rv">
+        <div class="ring-wrap" id="ring">
+          <svg viewBox="0 0 400 400" role="img" aria-label="Kreislauf mit fünf Phasen: Backlog, Planung, Umsetzung, Review, Retrospektive" data-i-aria="ring_aria">
+            <circle class="track" cx="200" cy="200" r="150"/>
+            <circle class="flow" cx="200" cy="200" r="150" transform="rotate(-90 200 200)"/>
+            <g class="pointer" id="pointer"><rect class="halo" x="188" y="38" width="24" height="24"/><rect x="193" y="43" width="14" height="14"/></g>
+            <g id="nodes"></g>
+          </svg>
+          <div class="center" id="center" aria-live="polite">
+            <span class="k" id="ck"></span>
+            <span class="t" id="ct"></span>
+            <span class="s" id="cs"></span>
+          </div>
+        </div>
+
+        <div>
+          <ol class="steps" id="steps"></ol>
+          <div class="ctrl">
+            <button type="button" id="toggle" aria-pressed="false">Pausieren</button>
+            <span data-i="p_hint">Phase anklicken, um sie zu wählen.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="methoden">
+    <div class="wrap">
+      <div class="head rv">
+        <span class="label" data-i="m_label">METHODEN</span>
+        <h2 data-i="m_h2">Kanban oder Scrum, je nach Aufgabe.</h2>
+        <p data-i="m_p">Die Methode folgt dem Projekt, nicht umgekehrt. Entscheidend sind Transparenz, ein klares Ziel und ein verlässlicher Rhythmus.</p>
+      </div>
+      <div class="two rv">
+        <div>
+          <span class="sub">KANBAN</span>
+          <h3 data-i="k_h3">Fluss steuern</h3>
+          <p data-i="k_p">Für laufende Analytics-Anfragen, Support und Weiterentwicklung mit wechselnden Prioritäten.</p>
+          <ul>
+            <li data-i="k_l1">Sichtbares Board und klare Übergabepunkte</li>
+            <li data-i="k_l2">WIP-Limits gegen Überlastung und Mehrfacharbeit</li>
+            <li data-i="k_l3">Durchlaufzeit als Steuergröße, laufende Priorisierung</li>
+          </ul>
+        </div>
+        <div>
+          <span class="sub">SCRUM</span>
+          <h3 data-i="s_h3">Ergebnisse liefern</h3>
+          <p data-i="s_p">Für Vorhaben mit klarem Ziel, etwa neue Datenprodukte, Dashboards oder KI-Anwendungen.</p>
+          <ul>
+            <li data-i="s_l1">Sprints mit festem Ziel und überprüfbarem Inkrement</li>
+            <li data-i="s_l2">Review mit Fachbereich, Retrospektive im Team</li>
+            <li data-i="s_l3">Produkt-Backlog mit nachvollziehbarer Priorisierung</li>
+          </ul>
+        </div>
+      </div>
+      <p class="note rv" data-i="m_note">In der Praxis kombiniere ich beides: Scrum-Rhythmus für die Planung, Kanban-Board für den täglichen Fluss.</p>
+    </div>
+  </section>
+
+  <section id="leistungen" class="alt">
+    <div class="wrap">
+      <div class="head rv">
+        <span class="label" data-i="l_label">LEISTUNGEN</span>
+        <h2 data-i="l_h2">Von der Pipeline bis zur Entscheidung.</h2>
+        <p data-i="l_p">Ich verbinde Datenaufbereitung, Analyse und Reporting so, dass Fachbereiche damit arbeiten können.</p>
+      </div>
+      <div class="services rv">
+        <div><span class="label">01</span><h3 data-i="l1_h">Analysen &amp; KPIs</h3><p data-i="l1_p">Funnel- und Kohortenanalysen, saubere KPI-Definitionen und belastbare Kennzahlen.</p></div>
+        <div><span class="label">02</span><h3 data-i="l2_h">Dashboards &amp; Reporting</h3><p data-i="l2_p">Berichte, die Fachbereiche verstehen und selbst weiterverwenden.</p></div>
+        <div><span class="label">03</span><h3 data-i="l3_h">Data Engineering</h3><p data-i="l3_p">ETL-Pipelines und die Verarbeitung großer Datenmengen, robust und nachvollziehbar.</p></div>
+        <div><span class="label">04</span><h3 data-i="l4_h">KI &amp; Self-Service</h3><p data-i="l4_p">Natural-Language-to-SQL über eine Semantic Layer, LLM-Klassifikation im Betrieb, Befähigung der Fachbereiche.</p></div>
+      </div>
+      <div class="tags rv" aria-label="Technologien" data-i-aria="tech_aria"><span>SQL</span><span>Python</span><span>PySpark</span><span>Power BI</span><span>ETL</span><span>LLMs</span><span>React / TypeScript</span></div>
+    </div>
+  </section>
+
+  <section id="erfahrung">
+    <div class="wrap">
+      <div class="head rv">
+        <span class="label" data-i="e_label">ERFAHRUNG</span>
+        <h2 data-i="e_h2">Über zehn Jahre Konzernumfeld, vom Frontend bis zur KI.</h2>
+        <p data-i="e_p">Regelmäßig neue Domänen, jeweils bis zum produktiven Betrieb verantwortet.</p>
+      </div>
+      <div class="xp rv">
+        <div><h3 data-i="x1_h">KI &amp; Analytics</h3><p data-i="x1_p">Self-Service-Abfragen in natürlicher Sprache über eine Semantic Layer, LLM-Klassifikationen im produktiven Einsatz, Fachbereiche für eigene Analysen befähigt.</p></div>
+        <div><h3 data-i="x2_h">Markenplattform</h3><p data-i="x2_p">Technische Verantwortung für eine zentrale Marken- und Kundenplattform, Migration von AngularJS auf React und TypeScript.</p></div>
+        <div><h3 data-i="x3_h">Portale &amp; Banking</h3><p data-i="x3_p">Sichere Kundenportale und REST-APIs unter strengen Compliance- und Sicherheitsvorgaben.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="kontakt" class="alt">
+    <div class="wrap contact cgrid">
+      <div>
+        <span class="label" data-i="c_label">KONTAKT</span>
+        <h2 class="rv" data-i="c_h2">Lassen Sie uns über Ihr Vorhaben sprechen.</h2>
+        <p class="lead rv" data-i="c_lead">Kurze Nachricht genügt. Ich melde mich mit Rückfragen und einem Vorschlag für das weitere Vorgehen.</p>
+        <div class="actions rv">
+          <a class="btn ghost" href="mailto:tobias.muenchen+consulting@gmail.com?subject=consulting-by-web-request" data-i="c_mail">Lieber per E-Mail</a>
+          <a class="btn ghost" href="https://www.linkedin.com/in/tobias-your-new-ai-expert" rel="noopener" data-i="c_li">LinkedIn-Profil</a>
+        </div>
+      </div>
+      <form class="cform rv" id="cform" novalidate>
+        <div class="field">
+          <label for="f-name" data-i="fm_name">Name</label>
+          <input id="f-name" name="name" type="text" autocomplete="name" required aria-describedby="e-name">
+          <span class="err" id="e-name" role="alert"></span>
+        </div>
+        <div class="field">
+          <label for="f-mail" data-i="fm_mail">E-Mail</label>
+          <input id="f-mail" name="email" type="email" autocomplete="email" required aria-describedby="e-mail">
+          <span class="err" id="e-mail" role="alert"></span>
+        </div>
+        <div class="field">
+          <label for="f-msg" data-i="fm_msg">Ihr Vorhaben</label>
+          <textarea id="f-msg" name="message" rows="5" required aria-describedby="e-msg"></textarea>
+          <span class="err" id="e-msg" role="alert"></span>
+        </div>
+        <input type="text" name="_honey" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+        <div class="field check">
+          <input id="f-ok" name="consent" type="checkbox" required aria-describedby="e-ok">
+          <label for="f-ok"><span data-i="fm_consent">Ich bin einverstanden, dass meine Angaben zur Bearbeitung der Anfrage verarbeitet werden. Der Versand läuft über den Formular-Dienst FormSubmit (USA).</span> <a href="https://tobmuc.github.io/my-portfolio-and-mindset/datenschutzhinweise.html" data-i="ft_priv">Datenschutz</a></label>
+          <span class="err" id="e-ok" role="alert"></span>
+        </div>
+        <button class="btn primary" type="submit" id="f-send" data-i="fm_send">Anfrage senden</button>
+        <p class="status" id="f-status" role="status" aria-live="polite"></p>
+      </form>
+    </div>
+  </section>
+</main>
+
+<div class="stripe" aria-hidden="true"></div>
+<footer>
+  <div class="wrap">
+    <span>© 2026 Tobias Burkard · München</span>
+    <span><a href="https://tobmuc.github.io/my-portfolio-and-mindset/datenschutzhinweise.html" data-i="ft_priv">Datenschutz</a> · <a href="#impressum-todo" data-i="ft_imp">Impressum</a></span>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var doc = document.documentElement;
+  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* ---------- Texte ---------- */
+  var EN = {
+    brand_aria: "Tobias Burkard, back to top", nav_aria: "Main navigation", lang_aria: "Language",
+    theme_aria: "Toggle dark mode", ring_aria: "Cycle with five phases: backlog, planning, delivery, review, retrospective",
+    tech_aria: "Technologies", portrait_alt: "Portrait of Tobias Burkard",
+    n_proc: "Approach", n_meth: "Kanban & Scrum", n_serv: "Services", n_exp: "Experience", n_contact: "Contact",
+    hero_label: "DATA ANALYTICS · DATA ENGINEERING · AI",
+    hero_h1: "Data and AI that make it into the daily work of business teams.",
+    hero_lead: "I build analyses, data pipelines and AI applications and bring them into production in short, transparent cycles. Agile, with clear responsibilities and regular feedback.",
+    hero_cta1: "Discuss a project", hero_cta2: "My approach",
+    f1: "Location", f1v: "Munich", f2: "Experience", f2v: "10+ years in a large corporation",
+    f3: "Focus", f3v: "Analytics & AI", f4: "Way of working",
+    p_label: "APPROACH", p_h2: "A cycle instead of one big bang.",
+    p_p: "Every project runs in short cycles: plan, build, show, learn. Progress stays visible, risks surface early and the value arrives step by step.",
+    p_hint: "Select a phase to see details.",
+    m_label: "METHODS", m_h2: "Kanban or Scrum, depending on the task.",
+    m_p: "The method follows the project, not the other way around. What matters is transparency, a clear goal and a reliable rhythm.",
+    k_h3: "Steering the flow", k_p: "For ongoing analytics requests, support and further development with changing priorities.",
+    k_l1: "Visible board and clear handover points", k_l2: "WIP limits against overload and multitasking", k_l3: "Lead time as a steering metric, continuous prioritisation",
+    s_h3: "Delivering results", s_p: "For initiatives with a clear goal, such as new data products, dashboards or AI applications.",
+    s_l1: "Sprints with a fixed goal and a verifiable increment", s_l2: "Review with the business team, retrospective within the team", s_l3: "Product backlog with traceable prioritisation",
+    m_note: "In practice I combine both: Scrum rhythm for planning, Kanban board for the daily flow.",
+    l_label: "SERVICES", l_h2: "From pipeline to decision.",
+    l_p: "I connect data preparation, analysis and reporting so that business teams can work with the results.",
+    l1_h: "Analyses & KPIs", l1_p: "Funnel and cohort analyses, clean KPI definitions and reliable metrics.",
+    l2_h: "Dashboards & Reporting", l2_p: "Reports that business teams understand and can reuse themselves.",
+    l3_h: "Data Engineering", l3_p: "ETL pipelines and processing of large data volumes, robust and traceable.",
+    l4_h: "AI & Self-Service", l4_p: "Natural-language-to-SQL over a semantic layer, LLM classification in production, enabling business teams.",
+    e_label: "EXPERIENCE", e_h2: "Over ten years in large organisations, from frontend to AI.",
+    e_p: "New domains again and again, each one owned through to production.",
+    x1_h: "AI & Analytics", x1_p: "Self-service queries in natural language over a semantic layer, LLM classifications in production, business teams enabled to run their own analyses.",
+    x2_h: "Brand platform", x2_p: "Technical ownership of a central brand and customer platform, migration from AngularJS to React and TypeScript.",
+    x3_h: "Portals & Banking", x3_p: "Secure customer portals and REST APIs under strict compliance and security requirements.",
+    c_label: "CONTACT", c_h2: "Let's talk about your project.",
+    c_lead: "A short message is enough. I will get back to you with questions and a proposal for next steps.",
+    c_mail: "Prefer email", c_li: "LinkedIn profile",
+    fm_name: "Name", fm_mail: "Email", fm_msg: "Your project",
+    fm_consent: "I agree that my details are processed to handle this request. The message is sent via the form service FormSubmit (USA).",
+    fm_send: "Send request", ft_priv: "Privacy", ft_imp: "Legal notice"
+  };
+  var META = {
+    de: { title: "Tobias Burkard · Data Analytics & KI", desc: "Tobias Burkard, München: Data Analytics, Data Engineering und KI-Anwendungen. Agile Projektarbeit mit Kanban und Scrum, transparent und in kurzen Zyklen." },
+    en: { title: "Tobias Burkard · Data Analytics & AI", desc: "Tobias Burkard, Munich: data analytics, data engineering and AI applications. Agile project work with Kanban and Scrum, transparent and in short cycles." }
+  };
+  var UI = {
+    de: { pause: "Pausieren", resume: "Fortsetzen", phase: "PHASE ", sending: "Wird gesendet …",
+      eName: "Bitte Ihren Namen angeben.", eMail: "Bitte eine gültige E-Mail-Adresse angeben.", eMsg: "Bitte kurz Ihr Vorhaben beschreiben.", eOk: "Bitte der Verarbeitung zustimmen.",
+      ok: "Danke, Ihre Anfrage ist angekommen. Ich melde mich in Kürze.", fail: "Das Senden hat nicht geklappt. Bitte versuchen Sie es erneut oder schreiben Sie direkt per E-Mail." },
+    en: { pause: "Pause", resume: "Resume", phase: "PHASE ", sending: "Sending …",
+      eName: "Please enter your name.", eMail: "Please enter a valid email address.", eMsg: "Please briefly describe your project.", eOk: "Please agree to the processing.",
+      ok: "Thank you, your request has arrived. I will get back to you shortly.", fail: "Sending failed. Please try again or write an email directly." }
+  };
+  var phases = [
+    { k: "01",
+      de: { t: "Backlog", s: "Ziele und Anforderungen priorisieren", d: "Gemeinsam mit dem Fachbereich Ziel, Nutzen und Reihenfolge klären. Das Backlog bleibt für alle sichtbar und wird laufend gepflegt." },
+      en: { t: "Backlog", s: "Prioritise goals and requirements", d: "Clarify goal, value and order together with the business team. The backlog stays visible to everyone and is maintained continuously." } },
+    { k: "02",
+      de: { t: "Planung", s: "Umfang und Fokus festlegen", d: "Sprint-Ziel oder WIP-Limits definieren. Was jetzt zählt, wird kleingeschnitten, damit es in einem Zyklus fertig werden kann." },
+      en: { t: "Planning", s: "Set scope and focus", d: "Define the sprint goal or WIP limits. What matters now is sliced small enough to be finished within one cycle." } },
+    { k: "03",
+      de: { t: "Umsetzung", s: "Bauen, testen, abstimmen", d: "Kurze Abstimmungen, ein sichtbares Board und frühe Zwischenstände. Blocker werden sofort angesprochen." },
+      en: { t: "Delivery", s: "Build, test, align", d: "Short syncs, a visible board and early interim results. Blockers are raised immediately." } },
+    { k: "04",
+      de: { t: "Review", s: "Ergebnis zeigen, Feedback holen", d: "Das Inkrement wird mit dem Fachbereich angesehen und bewertet. Rückmeldungen fließen direkt ins Backlog." },
+      en: { t: "Review", s: "Show results, gather feedback", d: "The increment is reviewed with the business team. Feedback flows straight back into the backlog." } },
+    { k: "05",
+      de: { t: "Retrospektive", s: "Zusammenarbeit verbessern", d: "Was lief gut, was bremst? Ein bis zwei konkrete Verbesserungen gehen in den nächsten Zyklus." },
+      en: { t: "Retrospective", s: "Improve how we work", d: "What went well, what slows us down? One or two concrete improvements go into the next cycle." } }
+  ];
+
+  var lang = doc.getAttribute("lang") === "en" ? "en" : "de";
+  var DE = {};
+
+  // deutsche Originaltexte aus dem HTML merken
+  document.querySelectorAll("[data-i]").forEach(function (el) { DE[el.dataset.i] = el.textContent; });
+  document.querySelectorAll("[data-i-aria]").forEach(function (el) { DE[el.dataset.iAria] = el.getAttribute("aria-label"); });
+  document.querySelectorAll("[data-i-alt]").forEach(function (el) { DE[el.dataset.iAlt] = el.getAttribute("alt"); });
+  var dict = { de: DE, en: EN };
+
+  /* ---------- Kreislauf ---------- */
+  var N = phases.length, CX = 200, CY = 200, R = 150, STEP = 360 / N;
+  var NS = "http://www.w3.org/2000/svg";
+  var nodesG = document.getElementById("nodes");
+  var stepsEl = document.getElementById("steps");
+  var pointer = document.getElementById("pointer");
+  var center = document.getElementById("center");
+  var ck = document.getElementById("ck"), ct = document.getElementById("ct"), cs = document.getElementById("cs");
+  var toggle = document.getElementById("toggle");
+  var nodeEls = [], liEls = [], hEls = [], dEls = [], idx = 0, angle = 0, timer = null, paused = reduce;
+
+  phases.forEach(function (p, i) {
+    var a = (-90 + i * STEP) * Math.PI / 180;
+    var x = CX + R * Math.cos(a), y = CY + R * Math.sin(a);
+    var g = document.createElementNS(NS, "g");
+    g.setAttribute("class", "node");
+    var c = document.createElementNS(NS, "rect");
+    c.setAttribute("x", x - 24); c.setAttribute("y", y - 24); c.setAttribute("width", 48); c.setAttribute("height", 48);
+    var t = document.createElementNS(NS, "text");
+    t.setAttribute("x", x); t.setAttribute("y", y); t.textContent = p.k;
+    g.appendChild(c); g.appendChild(t);
+    g.addEventListener("click", function () { select(i, true); });
+    nodesG.appendChild(g); nodeEls.push(g);
+
+    var li = document.createElement("li");
+    var b = document.createElement("button");
+    b.type = "button";
+    var n = document.createElement("span"); n.className = "n"; n.textContent = p.k;
+    var h = document.createElement("span"); h.className = "h";
+    var d = document.createElement("span"); d.className = "d";
+    b.appendChild(n); b.appendChild(h); b.appendChild(d);
+    b.addEventListener("click", function () { select(i, true); });
+    li.appendChild(b); stepsEl.appendChild(li); liEls.push(li); hEls.push(h); dEls.push(d);
+  });
+
+  function texts() {
+    phases.forEach(function (p, i) { hEls[i].textContent = p[lang].t; dEls[i].textContent = p[lang].d; });
+    toggle.textContent = paused ? UI[lang].resume : UI[lang].pause;
+  }
+
+  function fillCenter() {
+    ck.textContent = UI[lang].phase + phases[idx].k;
+    ct.textContent = phases[idx][lang].t;
+    cs.textContent = phases[idx][lang].s;
+    center.classList.remove("swap");
+  }
+
+  function render(swap) {
+    nodeEls.forEach(function (n, i) { n.classList.toggle("on", i === idx); });
+    liEls.forEach(function (l, i) {
+      l.classList.toggle("on", i === idx);
+      l.firstChild.setAttribute("aria-expanded", i === idx ? "true" : "false");
+    });
+    if (swap && !reduce) { center.classList.add("swap"); setTimeout(fillCenter, 160); } else { fillCenter(); }
+  }
+
+  function select(i, user) {
+    var delta = ((i - idx) % N + N) % N;
+    angle += delta * STEP;
+    idx = i;
+    pointer.style.transform = "rotate(" + angle + "deg)";
+    render(true);
+    if (user) { stop(); setPaused(true); }
+  }
+
+  function next() { select((idx + 1) % N, false); }
+  function start() { stop(); timer = setInterval(next, 3600); }
+  function stop() { if (timer) { clearInterval(timer); timer = null; } }
+  function setPaused(p) {
+    paused = p; toggle.setAttribute("aria-pressed", String(p));
+    toggle.textContent = p ? UI[lang].resume : UI[lang].pause;
+    if (!p) start(); else stop();
+  }
+
+  toggle.addEventListener("click", function () { setPaused(!paused); });
+  document.getElementById("ring").addEventListener("mouseenter", function () { if (!paused) stop(); });
+  document.getElementById("ring").addEventListener("mouseleave", function () { if (!paused) start(); });
+
+  /* ---------- Sprache ---------- */
+  var langBtns = document.querySelectorAll("[data-lang]");
+  function applyLang(l, save) {
+    lang = l; doc.setAttribute("lang", l);
+    var D = dict[l];
+    document.querySelectorAll("[data-i]").forEach(function (el) { var v = D[el.dataset.i]; if (v != null) el.textContent = v; });
+    document.querySelectorAll("[data-i-aria]").forEach(function (el) { var v = D[el.dataset.iAria]; if (v != null) el.setAttribute("aria-label", v); });
+    document.querySelectorAll("[data-i-alt]").forEach(function (el) { var v = D[el.dataset.iAlt]; if (v != null) el.setAttribute("alt", v); });
+    document.title = META[l].title;
+    var md = document.querySelector('meta[name="description"]'); if (md) md.setAttribute("content", META[l].desc);
+    langBtns.forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.lang === l)); });
+    texts(); fillCenter();
+    if (save) { try { localStorage.setItem("lang", l); } catch (e) {} }
+  }
+  langBtns.forEach(function (b) { b.addEventListener("click", function () { applyLang(b.dataset.lang, true); }); });
+
+  /* ---------- Kontaktformular ---------- */
+  var form = document.getElementById("cform");
+  var statusEl = document.getElementById("f-status");
+  var sendBtn = document.getElementById("f-send");
+  var ENDPOINT = "https://formsubmit.co/ajax/tobias.muenchen+consulting@gmail.com";
+  function setErr(id, inputId, msg) {
+    document.getElementById(id).textContent = msg || "";
+    var inp = document.getElementById(inputId);
+    if (msg) inp.setAttribute("aria-invalid", "true"); else inp.removeAttribute("aria-invalid");
+  }
+  function validate() {
+    var f = form.elements, bad = null;
+    var okName = f.name.value.trim().length > 1;
+    var okMail = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(f.email.value.trim());
+    var okMsg = f.message.value.trim().length > 9;
+    var okCons = f.consent.checked;
+    setErr("e-name", "f-name", okName ? "" : UI[lang].eName);
+    setErr("e-mail", "f-mail", okMail ? "" : UI[lang].eMail);
+    setErr("e-msg", "f-msg", okMsg ? "" : UI[lang].eMsg);
+    setErr("e-ok", "f-ok", okCons ? "" : UI[lang].eOk);
+    if (!okName) bad = f.name; else if (!okMail) bad = f.email; else if (!okMsg) bad = f.message; else if (!okCons) bad = f.consent;
+    if (bad) bad.focus();
+    return !bad;
+  }
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    statusEl.className = "status"; statusEl.textContent = "";
+    if (!validate()) return;
+    if (form.elements._honey.value) return;
+    sendBtn.disabled = true; statusEl.textContent = UI[lang].sending;
+    fetch(ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Accept": "application/json" },
+      body: JSON.stringify({
+        name: form.elements.name.value.trim(),
+        email: form.elements.email.value.trim(),
+        message: form.elements.message.value.trim(),
+        _subject: "consulting-by-web-request",
+        _replyto: form.elements.email.value.trim(),
+        _template: "table",
+        _captcha: "false"
+      })
+    }).then(function (r) { return r.json(); }).then(function (j) {
+      if (j && (j.success === true || j.success === "true")) {
+        form.reset(); statusEl.className = "status ok"; statusEl.textContent = UI[lang].ok;
+      } else { throw new Error("fail"); }
+    }).catch(function () {
+      statusEl.className = "status"; statusEl.textContent = UI[lang].fail;
+    }).then(function () { sendBtn.disabled = false; });
+  });
+
+  /* ---------- Dark Mode ---------- */
+  var mq = window.matchMedia("(prefers-color-scheme: dark)");
+  function isDark() {
+    var t = doc.getAttribute("data-theme");
+    return t ? t === "dark" : mq.matches;
+  }
+  document.getElementById("theme").addEventListener("click", function () {
+    var t = isDark() ? "light" : "dark";
+    doc.setAttribute("data-theme", t);
+    try { localStorage.setItem("theme", t); } catch (e) {}
+  });
+
+  /* ---------- Start ---------- */
+  render(false);
+  texts();
+  applyLang(lang, false);
+  setPaused(paused);
+
+  var rv = document.querySelectorAll(".rv");
+  if ("IntersectionObserver" in window && !reduce) {
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
+    }, { threshold: 0.12 });
+    rv.forEach(function (el) { io.observe(el); });
+  } else { rv.forEach(function (el) { el.classList.add("in"); }); }
+})();
+</script>
+</body>
+</html>

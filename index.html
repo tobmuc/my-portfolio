@@ -147,8 +147,8 @@ nav a:hover { color: var(--ink); background: var(--bg-alt); }
 .hero .grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: clamp(32px, 6vw, 88px); align-items: end; }
 .hero h1 { font-size: clamp(2.4rem, 5.6vw, 4.5rem); font-weight: 600; letter-spacing: -0.035em; margin: 20px 0 24px; }
 .hero .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 36px; }
-.pwrap { position: relative; width: min(232px, 62%); margin: 24px 0 48px 24px; }
-.pfx { position: absolute; inset: -44px; width: calc(100% + 88px); height: calc(100% + 88px); pointer-events: none; image-rendering: pixelated; }
+.pwrap { position: relative; width: min(232px, 62%); margin-bottom: 32px; }
+#stars { position: fixed; inset: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 5; image-rendering: pixelated; }
 .pframe {
   position: relative; width: 100%; aspect-ratio: 1; padding: 5px; border-radius: 50%;
   background: conic-gradient(from 200deg, #ffaf00, #ff8205, #fa500f, #e10500, #fa500f, #ff8205, #ffaf00);
@@ -301,6 +301,7 @@ footer a { text-underline-offset: 3px; }
 </head>
 <body>
 
+<canvas id="stars" aria-hidden="true"></canvas>
 <header>
   <div class="wrap">
     <a class="brand" href="#top" data-i-aria="brand_aria" aria-label="Tobias Burkard, zur Startseite">
@@ -345,7 +346,6 @@ footer a { text-underline-offset: 3px; }
       </div>
       <div class="side">
         <div class="pwrap">
-          <canvas class="pfx" id="pfx" aria-hidden="true"></canvas>
           <div class="pframe"><img class="portrait" src="profil.jpg" width="387" height="387" alt="Porträt von Tobias Burkard" data-i-alt="portrait_alt" fetchpriority="high"></div>
         </div>
         <dl class="facts">
@@ -746,92 +746,62 @@ footer a { text-underline-offset: 3px; }
     try { localStorage.setItem("theme", t); } catch (e) {}
   });
 
-  /* ---------- Pixel-Ring um das Profilbild ---------- */
+  /* ---------- Vereinzelte Pixel-Sterne im Viewport ---------- */
   (function () {
-    var cv = document.getElementById("pfx");
-    if (!cv || !cv.getContext) return;
+    var cv = document.getElementById("stars");
+    if (!cv || !cv.getContext || reduce) { if (cv) cv.remove(); return; }
     var ctx = cv.getContext("2d");
-    var C = 6;                         // Kantenlänge eines Pixels in CSS-px
-    var PAD = 44;                      // Überstand der Canvas über den Rahmen
-    var FPS = 12;                      // bewusst ruckelig, Pixel-Art-Gefühl
-    var pal = ["#ffd800", "#ffaf00", "#ff8205", "#fa500f", "#e10500"];
-    var W = 0, H = 0, ox = 0, oy = 0, cx = 0, cy = 0, R = 0;
-    var ring = [], sparks = [], head = 0, raf = 0, last = 0, visible = true;
+    var C = 4;                          // Pixelgröße in CSS-px
+    var FPS = 10;
+    var pal = ["#ffd800", "#ffaf00", "#ff8205", "#fa500f"];
+    var W = 0, H = 0, stars = [], raf = 0, last = 0, next = 0;
+    // Funkel-Sequenz: Punkt, kleines Kreuz, großes Kreuz, kleines Kreuz, Punkt
+    var seq = [0, 1, 2, 2, 1, 0];
+    var BLOCK = "h1,h2,h3,p,a,button,img,li,dl,dd,dt,form,input,textarea,label,.label,.tags,.steps,.ring-wrap,.facts,.note,.pframe,svg";
 
     function setup() {
-      var r = cv.getBoundingClientRect();
       var dpr = Math.min(2, window.devicePixelRatio || 1);
-      W = Math.round(r.width); H = Math.round(r.height);
-      if (!W || !H) return;
+      W = window.innerWidth; H = window.innerHeight;
       cv.width = W * dpr; cv.height = H * dpr;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.imageSmoothingEnabled = false;
-      var cols = Math.floor(W / C), rows = Math.floor(H / C);
-      ox = Math.round((W - cols * C) / 2); oy = Math.round((H - rows * C) / 2);
-      cx = Math.floor(cols / 2); cy = Math.floor(rows / 2);
-      ox = Math.round(W / 2 - (cx + 0.5) * C); oy = Math.round(H / 2 - (cy + 0.5) * C);
-      R = ((W - 2 * PAD) / 2 + 13) / C;   // knapp außerhalb des Farbrings
-      // Midpoint-Kreis: eine saubere, ein Pixel breite Kontur
-      ring = []; var seen = {}, r0 = Math.round(R), x = r0, y = 0, err = 1 - r0;
-      function add(dx, dy) {
-        var k = dx + "," + dy; if (seen[k]) return; seen[k] = 1;
-        ring.push({ x: cx + dx, y: cy + dy, a: (Math.atan2(dy, dx) * 180 / Math.PI + 90 + 360) % 360 });
-      }
-      while (x >= y) {
-        add(x, y); add(y, x); add(-y, x); add(-x, y); add(-x, -y); add(-y, -x); add(y, -x); add(x, -y);
-        y++;
-        if (err < 0) err += 2 * y + 1; else { x--; err += 2 * (y - x) + 1; }
-      }
     }
-
-    function px(x, y, col, alpha) {
-      ctx.globalAlpha = alpha; ctx.fillStyle = col;
-      ctx.fillRect(ox + x * C, oy + y * C, C - 1, C - 1);
+    function free(x, y) {
+      var el = document.elementFromPoint(x, y);
+      return el && !el.closest(BLOCK);
     }
-
     function spawn() {
-      var a = Math.random() * 360, t = (a - 90) * Math.PI / 180;
-      var d = R + 2 + Math.random() * 4;
-      sparks.push({ x: Math.round(cx + d * Math.cos(t)), y: Math.round(cy + d * Math.sin(t)), age: 0, col: pal[Math.floor(Math.random() * 4)] });
+      for (var tries = 0; tries < 8; tries++) {
+        var x = Math.round(Math.random() * (W - 40) / C) * C + 20;
+        var y = Math.round(Math.random() * (H - 120) / C) * C + 90;
+        if (free(x, y)) { stars.push({ x: x, y: y, f: 0, col: pal[Math.floor(Math.random() * pal.length)] }); return; }
+      }
     }
-
-    function draw(animate) {
+    function px(x, y, col) { ctx.fillStyle = col; ctx.fillRect(x, y, C, C); }
+    function draw() {
       ctx.clearRect(0, 0, W, H);
-      for (var i = 0; i < ring.length; i++) {
-        var c = ring[i], d = (head - c.a + 360) % 360;
-        if (d < 150) px(c.x, c.y, pal[Math.min(4, Math.floor(d / 30))], 1 - d / 190);
-        else px(c.x, c.y, pal[3], 0.16);
-      }
-      if (!animate) return;
-      for (var j = sparks.length - 1; j >= 0; j--) {
-        var s = sparks[j], g = s.age;
-        if (g < 2 || g > 5) px(s.x, s.y, s.col, g > 5 ? 0.5 : 1);
-        else { px(s.x, s.y, "#ffd800", 1); px(s.x - 1, s.y, s.col, 1); px(s.x + 1, s.y, s.col, 1); px(s.x, s.y - 1, s.col, 1); px(s.x, s.y + 1, s.col, 1); }
-        if (++s.age > 7) sparks.splice(j, 1);
+      for (var i = stars.length - 1; i >= 0; i--) {
+        var s = stars[i], st = seq[s.f];
+        px(s.x, s.y, st === 2 ? "#ffd800" : s.col);
+        if (st >= 1) { px(s.x - C, s.y, s.col); px(s.x + C, s.y, s.col); px(s.x, s.y - C, s.col); px(s.x, s.y + C, s.col); }
+        if (st === 2) { ctx.globalAlpha = 0.55; px(s.x - 2 * C, s.y, s.col); px(s.x + 2 * C, s.y, s.col); px(s.x, s.y - 2 * C, s.col); px(s.x, s.y + 2 * C, s.col); ctx.globalAlpha = 1; }
+        if (++s.f >= seq.length) stars.splice(i, 1);
       }
     }
-
     function tick(now) {
       raf = requestAnimationFrame(tick);
       if (now - last < 1000 / FPS) return;
       last = now;
-      head = (head + 9) % 360;
-      if (Math.random() < 0.35 && sparks.length < 4) spawn();
-      draw(true);
+      if (now > next && stars.length < 3) { spawn(); next = now + 900 + Math.random() * 2200; }
+      draw();
     }
-    function start() { if (!raf && visible && !document.hidden) raf = requestAnimationFrame(tick); }
-    function stopFx() { if (raf) { cancelAnimationFrame(raf); raf = 0; } }
+    function start() { if (!raf && !document.hidden) raf = requestAnimationFrame(tick); }
+    function stopFx() { if (raf) { cancelAnimationFrame(raf); raf = 0; } stars = []; ctx.clearRect(0, 0, W, H); }
 
     setup();
-    if (reduce) { head = 40; draw(false); }
-    else {
-      start();
-      document.addEventListener("visibilitychange", function () { document.hidden ? stopFx() : start(); });
-      if ("IntersectionObserver" in window) {
-        new IntersectionObserver(function (es) { visible = es[0].isIntersecting; visible ? start() : stopFx(); }).observe(cv);
-      }
-    }
-    if ("ResizeObserver" in window) new ResizeObserver(function () { setup(); if (reduce) draw(false); }).observe(cv);
+    window.addEventListener("resize", setup);
+    document.addEventListener("visibilitychange", function () { document.hidden ? stopFx() : start(); });
+    start();
   })();
 
   /* ---------- Start ---------- */
